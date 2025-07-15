@@ -1,16 +1,23 @@
-# ⛓️ SCD Type 2 Data Engineering Pipeline with Snowflake + S3 + Faker
+# ⛓️ End-to-End Data Pipeline with AWS EC2, Apache NiFi, AWS S3,Docker and Snowflake (SCD1 & SCD2)
 
-This project showcases a complete **data engineering pipeline** that simulates handling Slowly Changing Dimensions (SCD Type 1 & 2) using **Snowflake**, **Amazon S3**, and **Python Faker**. It mimics a real-world use case where customer information changes over time and needs to be tracked historically.
+This repository showcases a **real-world end-to-end data pipeline** that simulates change data capture and slowly changing dimensions using a modern **data engineering stack**. The project demonstrates how to ingest streaming data with **Apache NiFi**, land it in **AWS S3**, and automatically load it into **Snowflake**. Once in Snowflake, the pipeline applies **Slowly Changing Dimension (SCD)** Type 1 and Type 2 logic using Snowflake Streams and Tasks to maintain both current and historical records. The entire workflow is orchestrated on an **AWS EC2** instance using **Docker**, making it easy to deploy and reproduce. This project is designed as a portfolio piece to highlight data engineering skills in cloud infrastructure, pipeline automation, and data warehousing best practices.
+
 
 ## 🧱 Tech Stack
 
-- **Snowflake** — Cloud Data Warehouse
-- **Amazon S3** — Staging Layer for raw files
-- **Faker + Python** — Data simulation
-- **Snowpipe** — Automated data ingestion
-- **Streams** — Change data capture
-- **Docker** — Deployment simulation
-- **SQL (SCD1 & SCD2)** — Data transformation logic
+- **Amazon EC2** – Cloud VM infrastructure hosting the pipeline (running Docker containers for NiFi and JupyterLab).
+- **Snowflake** — Cloud data warehouse where data is loaded and transformed. It holds the staging table as well as the target dimension tables.
+- **Amazon S3** — Data lake storage for raw CSV files and for Snowflake to ingest from. Acts as the landing zone for NiFi outputs and a source   for Snowpipe.
+- **Faker + Python** — Used to generate synthetic source data (customer records) with realistic values. A JupyterLab notebook uses Faker to                             create CSV files simulating new and updated customer information.
+- **Snowpipe** — Snowflake’s continuous ingestion service, set up to automatically load new files from the S3 bucket into a Snowflake staging 
+                 table (customer_raw).
+- **Snowflake Streams & Tasks** — Used for orchestration of data transformations:  
+-Stream on the staging table captures new rows as they arrive (for SCD Type 1).  
+-Stream on the main table captures changes in the dimension table (for SCD Type 2 history).  
+-Task schedules a stored procedure to merge new data from staging into the main customer table (Type 1).  
+-Task schedules a merge from the change stream into the customer_history table (Type 2).  
+- **Docker & Docker-Compose** — SQL scripts define the database schema, stage, pipe, and implement the SCD Type-1 and Type-2 transformations using MERGE statements and stored procedures.
+
 
 ---
 
