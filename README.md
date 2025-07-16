@@ -21,6 +21,12 @@ This repository showcases a **real-world end-to-end data pipeline** that simulat
 
 ---
 
+## 📊 Architecture
+
+![Architecture](architecture/scd_pipeline_architecture.png)
+
+---
+
 ## 📌 Project Highlights
 
 - 🔁 **SCD Type 2** history tracking: preserves old data with timestamps.
