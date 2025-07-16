@@ -12,10 +12,10 @@ This repository showcases a **real-world end-to-end data pipeline** that simulat
 - **Snowpipe** — Snowflake’s continuous ingestion service, set up to automatically load new files from the S3 bucket into a Snowflake staging 
                  table (customer_raw).
 - **Snowflake Streams & Tasks** — Used for orchestration of data transformations:  
--Stream on the staging table captures new rows as they arrive (for SCD Type 1).  
--Stream on the main table captures changes in the dimension table (for SCD Type 2 history).  
--Task schedules a stored procedure to merge new data from staging into the main customer table (Type 1).  
--Task schedules a merge from the change stream into the customer_history table (Type 2).  
+ -Stream on the staging table captures new rows as they arrive (for SCD Type 1).  
+ -Stream on the main table captures changes in the dimension table (for SCD Type 2 history).  
+ -Task schedules a stored procedure to merge new data from staging into the main customer table (Type 1).  
+ -Task schedules a merge from the change stream into the customer_history table (Type 2).  
 - **Docker & Docker-Compose** — SQL scripts define the database schema, stage, pipe, and implement the SCD Type-1 and Type-2 transformations using MERGE statements and stored procedures.
 
 
@@ -23,17 +23,28 @@ This repository showcases a **real-world end-to-end data pipeline** that simulat
 
 ## 📊 Architecture
 
-![Architecture](architecture/scd_pipeline_architecture.png)
+![Pipeline Architecture](Architecture.png)
+
+This pipeline runs on an EC2 instance using Docker to host Apache NiFi and Jupyter. Fake customer data is generated with Python (Faker) and saved as CSV files. NiFi picks up these files and uploads them to an S3 bucket.  
+
+Snowflake’s Snowpipe watches the bucket and loads the new files into a staging table. From there:  
+1. One Stream + Task moves the new records into the main customer table (SCD Type 1).  
+2. Another Stream + Task tracks changes and writes historical versions to a separate table (SCD Type 2).  
+
+The whole setup mimics a real-world system where customer data changes over time — capturing both the current and historical views automatically.
 
 ---
 
-## 📌 Project Highlights
+## 📌 Key Features
 
-- 🔁 **SCD Type 2** history tracking: preserves old data with timestamps.
-- 💡 Uses **Snowflake Stream** to capture changes from a staging table.
-- 📂 Loads raw files from **S3** using Snowpipe and external stage.
-- 🧪 Faker generates dynamic test data mimicking real customers.
-- 🐳 Docker Compose used for version-controlled environment simulation.
+- **End-to-End Pipeline** – Fully automated data flow from data generation to analytics-ready tables.
+- **Apache NiFi Ingestion** – Low-code data ingestion using NiFi to simulate a streaming source.
+- **Automated Snowflake Loading (Snowpipe)** – Auto-load new files from S3 into Snowflake in near real-time.
+- **Slowly Changing Dimensions (SCD1 & SCD2)** – Implementation of SCD logic on customer data.
+- **Snowflake Streams & Tasks** – Automate ELT with built-in tools instead of external orchestrators.
+- **Real-World Use Case Simulation** – Handles evolving data like updates to customer profiles.
+- **Synthetic Data Generation** – Create fake customer data to simulate updates and new entries.
+- **Infrastructure as Code** – All setup defined through SQL and Docker scripts.
 
 ---
 
@@ -44,12 +55,6 @@ This repository showcases a **real-world end-to-end data pipeline** that simulat
 - `architecture/` — Project pipeline diagram.
 - `docker-compose.yml` — Sets up supporting services (if any in real scenario).
 - `commands.txt` — Helpful CLI and Snowflake commands.
-
----
-
-## 📊 Architecture
-
-![Architecture](architecture/scd_pipeline_architecture.png)
 
 ---
 
@@ -82,13 +87,15 @@ SELECT * FROM customer_raw;
 
 ## 📚 Learning Outcomes
 
-- Understand the difference between SCD1 and SCD2.
-- Automate data ingestion using Snowpipe.
-- Use Python to simulate real-world ETL testing environments.
-- Apply Snowflake streams to detect and apply changes.
+- Built and deployed infrastructure using EC2 and Docker.
+- Ingested and transformed data using NiFi and Snowflake.
+- Applied SCD Type 1 and Type 2 for customer data warehousing.
+- Used Streams and Tasks in Snowflake for automated, scalable ELT.
+- Simulated realistic use cases using synthetic data generation.
+- Troubleshot cross-system pipeline from data generation to warehousin
 
 ---
 
 ## 🪪 License
 
-This project is for learning and demonstration purposes only. Feel free to fork and extend!
+This project is designed to reflect the real-world skills required for a Data Engineer role and can be extended further with Airflow, monitoring tools, or dbt for modeling. Feel free to fork and extend!
